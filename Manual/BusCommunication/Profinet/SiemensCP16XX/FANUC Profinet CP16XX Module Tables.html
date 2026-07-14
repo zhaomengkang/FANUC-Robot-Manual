@@ -7,12 +7,20 @@
 body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
 h2 { color:#c80000; font-weight:bold; margin:30px 0 10px; }
 h3 { background:#ffdd00; padding:6px 10px; margin:25px 0 8px; }
-table { border-collapse: collapse; width:100%; margin-bottom:30px; }
-th, td { border:1px solid #333; padding:5px 8px; text-align:center; }
+table { border-collapse: collapse; width:100%; margin-bottom:30px; table-layout: fixed; }
+th, td { border:1px solid #333; padding:5px 8px; text-align:center; word-wrap: break-word; }
 th { background:#fff9b0; font-weight:bold; }
 td:first-child { background:#f8f8f8; }
 .subtitle { color:#666; font-style:italic; margin:4px 0 12px; }
 .section-block { margin-bottom:40px; }
+
+.col-slot    { width: 8%; }
+.col-subslot { width: 10%; }
+.col-kind    { width: 28%; }
+.col-hex     { width: 14%; }
+.col-dec     { width: 12%; }
+.col-subhex  { width: 14%; }
+.col-subdec  { width: 14%; }
 </style>
 </head>
 <body>
@@ -24,6 +32,15 @@ td:first-child { background:#f8f8f8; }
 <h3>INTERFACE MODULE</h3>
 <p class="subtitle">Assignment CP1604 R30iA device V2.5</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -79,6 +96,15 @@ td:first-child { background:#f8f8f8; }
 <h3>STANDARD I/O</h3>
 <p class="subtitle">Profinet device R30iA V2.5 I/O assignment</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -260,6 +286,15 @@ td:first-child { background:#f8f8f8; }
 <h3>SAFE I/O (V2.5)</h3>
 <p class="subtitle">Professional I/O Assignment R30iA V2.5</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -349,13 +384,22 @@ td:first-child { background:#f8f8f8; }
 </table>
 </div>
 
-<!-- ========== R30iB V2.5 Version  ========== -->
+<!-- ========== R30iB V2.5 Version ========== -->
 <div class="section-block">
 <h2>FANUC R30iB V2.5 Profinet I/O Modules</h2>
 
 <h3>INTERFACE MODULE</h3>
 <p class="subtitle">Assignment CP1604 R30iB device V2.5</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -411,6 +455,15 @@ td:first-child { background:#f8f8f8; }
 <h3>STANDARD I/O</h3>
 <p class="subtitle">Profinet device R30iB V2.5 I/O assignment</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -592,6 +645,15 @@ td:first-child { background:#f8f8f8; }
 <h3>SAFE I/O (V2.5)</h3>
 <p class="subtitle">Professional I/O Assignment R30iB V2.5</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -688,6 +750,15 @@ td:first-child { background:#f8f8f8; }
 <h3>INTERFACE MODULE</h3>
 <p class="subtitle">Assignment CP1604 R30iB device V2.6</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -743,6 +814,15 @@ td:first-child { background:#f8f8f8; }
 <h3>STANDARD I/O</h3>
 <p class="subtitle">Profinet device R30iB V2.6 I/O assignment</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
@@ -924,6 +1004,15 @@ td:first-child { background:#f8f8f8; }
 <h3>SAFE I/O (V2.6)</h3>
 <p class="subtitle">Professional I/O Assignment R30iB V2.6</p>
 <table>
+  <colgroup>
+    <col class="col-slot">
+    <col class="col-subslot">
+    <col class="col-kind">
+    <col class="col-hex">
+    <col class="col-dec">
+    <col class="col-subhex">
+    <col class="col-subdec">
+  </colgroup>
   <tr>
     <th colspan="3"></th>
     <th colspan="2">Module Ident Number</th>
