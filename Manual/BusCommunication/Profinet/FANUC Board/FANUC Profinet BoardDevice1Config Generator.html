@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FANUC Profinet Board Device1 Config Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    :root{
+      --bg:#e9edf2;
+      --panel:#f7f9fb;
+      --line:#b8c2cc;
+      --line2:#8ea0b3;
+      --text:#1f2937;
+      --muted:#5f6b7a;
+      --blue:#0078d4;
+      --blue2:#005a9e;
+      --safe-bg:#fff4e5;
+      --safe-border:#f59e0b;
+      --normal-bg:#eef6ff;
+      --normal-border:#7aa7d9;
+      --shadow:0 6px 18px rgba(0,0,0,.08);
+      --radius:10px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Segoe UI", Arial, "Microsoft YaHei", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    header{
+      background:linear-gradient(180deg, #3a4654, #2b3440);
+      color:#fff;
+      padding:14px 20px;
+      border-bottom:3px solid var(--blue);
+      box-shadow:var(--shadow);
+    }
+
+    header h1{
+      margin:0;
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .wrap{
+      display:grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap:14px;
+      padding:14px;
+      min-height:calc(100vh - 72px);
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-bottom:12px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+    }
+
+    label{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    select, button, textarea, input{
+      font:inherit;
+    }
+
+    select, input[type="file"]{
+      padding:7px 10px;
+      border:1px solid var(--line2);
+      border-radius:8px;
+      background:#fff;
+    }
+
+    button{
+      border:none;
+      border-radius:8px;
+      padding:9px 13px;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .btn-primary{
+      background:var(--blue);
+      color:#fff;
+    }
+    .btn-primary:hover{background:var(--blue2)}
+    .btn-secondary{
+      background:#dfe6ee;
+      color:#111827;
+    }
+    .btn-secondary:hover{background:#cfd8e3}
+
+    .top-actions{
+      margin-left:auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      gap:14px;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size:15px;
+      color:#243447;
+    }
+
+    .tree-panel{
+      border:1px solid var(--line);
+      border-radius:10px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .tree-header,
+    .tree-row{
+      display:grid;
+      grid-template-columns: 90px 1fr 70px;
+      align-items:center;
+      min-height:52px;
+      padding:0 10px;
+    }
+
+    .tree-header{
+      background:#dfe7ef;
+      font-weight:700;
+      color:#243447;
+      min-height:42px;
+      border-bottom:1px solid #c8d2dc;
+    }
+
+    .tree-row{
+      border-bottom:1px solid #d7dee6;
+      background:#fff;
+      transition:.15s;
+      position:relative;
+    }
+
+    .tree-row:last-child{border-bottom:none}
+
+    .tree-row.dragover{
+      outline:2px solid var(--blue);
+      outline-offset:-2px;
+    }
+
+    .tree-row.safe{
+      background:var(--safe-bg);
+      border-left:4px solid var(--safe-border);
+    }
+
+    .tree-row.normal{
+      background:var(--normal-bg);
+      border-left:4px solid var(--normal-border);
+    }
+
+    .tree-cell{
+      padding:6px 4px;
+      font-size:13px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .tree-slot{
+      font-weight:700;
+      color:#1f2937;
+    }
+
+    .slot-actions{
+      text-align:right;
+    }
+
+    .mini-btn{
+      padding:4px 8px;
+      font-size:12px;
+      border-radius:6px;
+    }
+
+    .module-list{
+      display:flex;
+      flex-direction:column;
+      gap:0;
+      max-height:calc(100vh - 220px);
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+    }
+
+    .module-item{
+      padding:10px 12px;
+      border-bottom:1px solid #d7dee6;
+      cursor:grab;
+      user-select:none;
+      background:#fff;
+      transition:.15s;
+    }
+
+    .module-item:hover{
+      background:#f4f8fc;
+    }
+
+    .module-item:active{
+      cursor:grabbing;
+    }
+
+    .module-item.safe{
+      background:var(--safe-bg);
+    }
+
+    .module-item .name{
+      font-size:14px;
+      font-weight:700;
+      color:#1f2937;
+    }
+
+    .divider{
+      height:1px;
+      background:#9ca3af;
+    }
+
+    .status{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:8px;
+      background:#eef5ff;
+      color:#0f4c81;
+      font-size:13px;
+      line-height:1.5;
+      border:1px solid #cfe0f5;
+    }
+
+    .status.error{
+      background:#fff1f1;
+      color:#b42318;
+      border-color:#f3c2c2;
+    }
+
+    textarea{
+      width:100%;
+      min-height:340px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:12px;
+      background:#0f172a;
+      color:#d1fae5;
+      font-family:Consolas, Monaco, monospace;
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    @media (max-width: 1100px){
+      .wrap, .layout{
+        grid-template-columns:1fr;
+      }
+      .tree-header, .tree-row{
+        grid-template-columns: 80px 1fr 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1 id="title">FANUC Profinet Board `device1` Config Generator</h1>
+</header>
+
+<div class="wrap">
+  <section class="panel">
+    <div class="toolbar">
+      <label for="langSelect" id="langLabel">Language:</label>
+      <select id="langSelect">
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
+
+      <label for="channelMode" id="channelLabel"><strong>Channel:</strong></label>
+      <select id="channelMode">
+        <option value="single">Single Channel</option>
+        <option value="dual">Dual Channel</option>
+      </select>
+
+      <input type="file" id="xmlFile" accept=".xml" style="display:none" />
+
+      <div class="top-actions">
+        <button class="btn-secondary" id="importBtn">Import XML</button>
+        <button class="btn-secondary" id="clearBtn">Clear</button>
+        <button class="btn-primary" id="generateBtn">Generate XML</button>
+        <button class="btn-secondary" id="zipBtn">Generate ZIP</button>
+        <button class="btn-secondary" id="copyBtn">Copy XML</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div>
+        <h2 id="leftTitle">Left: Device Tree / Insert Configuration</h2>
+        <div class="tree-panel" id="treePanel"></div>
+      </div>
+
+      <div>
+        <h2 id="rightTitle">Right: Module List</h2>
+        <div class="module-list" id="moduleList"></div>
+        <div class="status" id="status">Drag a module to the left panel.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 id="xmlTitle">XML Output</h2>
+    <textarea id="xmlOutput" placeholder="Generated XML will appear here..."></textarea>
+  </section>
+</div>
+
+<script>
+  const normalModules = [
+    { id: 1, name: "DI/DO 8 BYTE", input: 1, output: 1 },
+    { id: 2, name: "DI 8 BYTE", input: 1, output: 0 },
+    { id: 3, name: "DO 8 BYTE", input: 0, output: 1 },
+    { id: 4, name: "DI/DO 16 BYTE", input: 2, output: 2 },
+    { id: 5, name: "DI 16 BYTE", input: 2, output: 0 },
+    { id: 6, name: "DO 16 BYTE", input: 0, output: 2 },
+    { id: 7, name: "DI/DO 32 BYTE", input: 4, output: 4 },
+    { id: 8, name: "DI 32 BYTE", input: 4, output: 0 },
+    { id: 9, name: "DO 32 BYTE", input: 0, output: 4 },
+    { id: 10, name: "DI/DO 128 BYTE", input: 16, output: 16 },
+    { id: 11, name: "DI 128 BYTE", input: 16, output: 0 },
+    { id: 12, name: "DO 128 BYTE", input: 0, output: 16 },
+    { id: 13, name: "DI/DO 256 BYTE", input: 32, output: 32 },
+    { id: 14, name: "DI 256 BYTE", input: 32, output: 0 },
+    { id: 15, name: "DO 256 BYTE", input: 0, output: 32 },
+    { id: 16, name: "DI/DO 512 BYTE", input: 64, output: 64 },
+    { id: 17, name: "DI 512 BYTE", input: 64, output: 0 },
+    { id: 18, name: "DO 512 BYTE", input: 0, output: 64 },
+    { id: 19, name: "DI/DO 1024 BYTE", input: 128, output: 128 },
+    { id: 20, name: "DI 1024 BYTE", input: 128, output: 0 },
+    { id: 21, name: "DO 1024 BYTE", input: 0, output: 128 }
+  ];
+
+  const safeModules = [
+    { id: "0x2001", name: "Safety DI/DO 8 BYTE", input: 6, output: 6 },
+    { id: "0x2002", name: "Safety DI/DO 16 BYTE", input: 7, output: 7 },
+    { id: "0x2003", name: "Safety DI/DO 24 BYTE", input: 8, output: 8 },
+    { id: "0x2004", name: "Safety DI/DO 32 BYTE", input: 9, output: 9 },
+    { id: "0x2005", name: "Safety DI/DO 40 BYTE", input: 10, output: 10 },
+    { id: "0x2006", name: "Safety DI/DO 48 BYTE", input: 11, output: 11 },
+    { id: "0x2007", name: "Safety DI/DO 56 BYTE", input: 12, output: 12 },
+    { id: "0x2008", name: "Safety DI/DO 64 BYTE", input: 13, output: 13 }
+  ];
+
+  const i18n = {
+    en: { title:"FANUC Profinet Board `device1` Config Generator", channel:"Channel:", leftTitle:"Left: Device Tree / Insert Configuration", rightTitle:"Right: Module List", xmlTitle:"XML Output", clear:"Clear", generate:"Generate XML", zip:"Generate ZIP", copy:"Copy XML", import:"Import XML", status:"Drag a module to the left panel.", remove:"Remove", slot:"Slot", module:"Module", action:"Action", append:"Drop here to append", empty:"Empty" },
+    zh: { title:"FANUC Profinet Board `device1` 配置生成器", channel:"通道：", leftTitle:"左侧：设备树 / 插入式配置", rightTitle:"右侧：模块列表", xmlTitle:"XML 输出", clear:"清空", generate:"生成 XML", zip:"生成 ZIP", copy:"复制 XML", import:"导入 XML", status:"请将模块拖到左侧面板。", remove:"移除", slot:"插槽", module:"模块", action:"操作", append:"拖到这里追加", empty:"空" }
+  };
+
+  let lang = "en";
+  let slotData = [];
+  let draggedModule = null;
+
+  const treePanelEl = document.getElementById("treePanel");
+  const moduleListEl = document.getElementById("moduleList");
+  const xmlOutputEl = document.getElementById("xmlOutput");
+  const statusEl = document.getElementById("status");
+  const channelModeEl = document.getElementById("channelMode");
+  const langSelectEl = document.getElementById("langSelect");
+  const xmlFileEl = document.getElementById("xmlFile");
+
+  function t(key){ return i18n[lang][key]; }
+
+  function applyLanguage(){
+    document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+    document.getElementById("title").textContent = t("title");
+    document.getElementById("langLabel").textContent = lang === "en" ? "Language:" : "语言：";
+    document.getElementById("channelLabel").innerHTML = `<strong>${t("channel")}</strong>`;
+    document.getElementById("leftTitle").textContent = t("leftTitle");
+    document.getElementById("rightTitle").textContent = t("rightTitle");
+    document.getElementById("xmlTitle").textContent = t("xmlTitle");
+    document.getElementById("clearBtn").textContent = t("clear");
+    document.getElementById("generateBtn").textContent = t("generate");
+    document.getElementById("zipBtn").textContent = t("zip");
+    document.getElementById("copyBtn").textContent = t("copy");
+    document.getElementById("importBtn").textContent = t("import");
+    statusEl.textContent = t("status");
+    renderTree();
+    renderModuleList();
+  }
+
+  function setStatus(msg, error=false){
+    statusEl.textContent = msg;
+    statusEl.classList.toggle("error", error);
+  }
+
+  function renderTree(){
+    treePanelEl.innerHTML = "";
+    const header = document.createElement("div");
+    header.className = "tree-header";
+    header.innerHTML = `<div>${t("slot")}</div><div>${t("module")}</div><div>${t("action")}</div>`;
+    treePanelEl.appendChild(header);
+
+    slotData.forEach((item, i) => {
+      const row = document.createElement("div");
+      row.className = `tree-row ${item.type === "safe" ? "safe" : "normal"}`;
+      row.innerHTML = `
+        <div class="tree-cell tree-slot">${t("slot")} ${i + 1}</div>
+        <div class="tree-cell">${item.name}</div>
+        <div class="tree-cell slot-actions">
+          <button class="mini-btn btn-secondary" data-remove="${i}">${t("remove")}</button>
+        </div>
+      `;
+      row.addEventListener("dragover", e => { e.preventDefault(); row.classList.add("dragover"); });
+      row.addEventListener("dragleave", () => row.classList.remove("dragover"));
+      row.addEventListener("drop", e => { e.preventDefault(); row.classList.remove("dragover"); if(draggedModule) insertModuleAt(i, draggedModule); });
+      treePanelEl.appendChild(row);
+    });
+
+    const addRow = document.createElement("div");
+    addRow.className = "tree-row";
+    addRow.innerHTML = `<div class="tree-cell tree-slot">+</div><div class="tree-cell">${t("append")}</div><div class="tree-cell"></div>`;
+    addRow.addEventListener("dragover", e => { e.preventDefault(); addRow.classList.add("dragover"); });
+    addRow.addEventListener("dragleave", () => addRow.classList.remove("dragover"));
+    addRow.addEventListener("drop", e => { e.preventDefault(); addRow.classList.remove("dragover"); if(draggedModule) insertModuleAt(slotData.length, draggedModule); });
+    treePanelEl.appendChild(addRow);
+
+    document.querySelectorAll("[data-remove]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const idx = Number(e.target.dataset.remove);
+        slotData.splice(idx, 1);
+        normalizeOrder();
+        renderTree();
+        setStatus(`${t("remove")} ${t("slot")} ${idx + 1}`);
+      });
+    });
+  }
+
+  function createModuleItem(m, isSafe){
+    const div = document.createElement("div");
+    div.className = "module-item" + (isSafe ? " safe" : "");
+    div.draggable = true;
+    div.innerHTML = `<div class="name">${m.name}</div>`;
+    div.addEventListener("dragstart", () => { draggedModule = { id:m.id, name:m.name, input:m.input, output:m.output, type:isSafe ? "safe" : "normal" }; });
+    div.addEventListener("dragend", () => { draggedModule = null; });
+    return div;
+  }
+
+  function renderModuleList(){
+    moduleListEl.innerHTML = "";
+    safeModules.forEach((m, idx) => {
+      moduleListEl.appendChild(createModuleItem(m, true));
+      if(idx !== safeModules.length - 1){
+        const line = document.createElement("div");
+        line.className = "divider";
+        moduleListEl.appendChild(line);
+      }
+    });
+    normalModules.forEach((m, idx) => {
+      moduleListEl.appendChild(createModuleItem(m, false));
+      if(idx !== normalModules.length - 1){
+        const line = document.createElement("div");
+        line.className = "divider";
+        moduleListEl.appendChild(line);
+      }
+    });
+  }
+
+  function normalizeOrder(){
+    const safety = slotData.filter(x => x.type === "safe");
+    const normal = slotData.filter(x => x.type === "normal");
+    slotData = [...safety, ...normal];
+  }
+
+  function insertModuleAt(index, module){
+    slotData.push(module);
+    normalizeOrder();
+    renderTree();
+    setStatus(`${module.name} inserted.`);
+  }
+
+  function generateXML(){
+    const mode = channelModeEl.value;
+    const lines = [];
+    lines.push('<?xml version="1.0" encoding="utf-8"?>');
+    lines.push("<Device>");
+    if(mode === "single"){
+      lines.push('  <Module Slot="0" ID="0x00000300">');
+      lines.push('    <Submodule API="0" Subslot="1" ID="0x00000001" Inputlen="0" Outputlen="0" IMCarrier="1" />');
+      lines.push('    <Submodule API="0" Subslot="0x8000" ID="0x00008000" Inputlen="0" Outputlen="0" />');
+      lines.push('    <Submodule API="0" Subslot="0x8001" ID="0x00008001" Inputlen="0" Outputlen="0" />');
+      lines.push('    <Submodule API="0" Subslot="0x8002" ID="0x00008002" Inputlen="0" Outputlen="0" />');
+      lines.push('    <Submodule API="0" Subslot="0x8003" ID="0x00008003" Inputlen="0" Outputlen="0" />');
+      lines.push('    <Submodule API="0" Subslot="0x8004" ID="0x00008004" Inputlen="0" Outputlen="0" />');
+      lines.push("  </Module>");
+    } else {
+      lines.push('  <Module Slot="0" ID="0x00000300">');
+      lines.push('    <Submodule API="0" Subslot="1" ID="0x00000001" Inputlen="0" Outputlen="0" IMCarrier="1" />');
+      lines.push('    <Submodule API="0" Subslot="0x8000" ID="0x00008000" Inputlen="0" Outputlen="0" />');
+      lines.push('    <Submodule API="0" Subslot="0x8001" ID="0x00008001" Inputlen="0" Outputlen="0" />');
+      lines.push('    <Submodule API="0" Subslot="0x8002" ID="0x00008002" Inputlen="0" Outputlen="0" />');
+      lines.push("  </Module>");
+    }
+    slotData.forEach((item, idx) => {
+      lines.push(`  <Module Slot="${idx + 1}" ID="${item.id}">`);
+      lines.push(`    <Submodule API="0" Subslot="01" ID="0x00000001" Inputlen="${item.input}" Outputlen="${item.output}"/>`);
+      lines.push("  </Module>");
+    });
+    lines.push("</Device>");
+    return lines.join("\n");
+  }
+
+  function parseXMLToSlots(xmlText){
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, "application/xml");
+    const parseError = doc.querySelector("parsererror");
+    if(parseError) throw new Error("Invalid XML.");
+
+    const modules = [...doc.querySelectorAll("Device > Module")];
+    const result = [];
+
+    modules.forEach(mod => {
+      const slot = mod.getAttribute("Slot");
+      if(slot === "0") return;
+
+      const sub = mod.querySelector("Submodule");
+      if(!sub) return;
+
+      const id = mod.getAttribute("ID");
+      const input = Number(sub.getAttribute("Inputlen") || "0");
+      const output = Number(sub.getAttribute("Outputlen") || "0");
+
+      const found = findModuleByIdAndLen(id, input, output);
+      if(found) result.push(found);
+    });
+
+    return result;
+  }
+
+  function findModuleByIdAndLen(id, input, output){
+    const all = [...safeModules.map(m => ({...m, type:"safe"})), ...normalModules.map(m => ({...m, type:"normal"}))];
+    return all.find(m => String(m.id) === String(id) && Number(m.input) === Number(input) && Number(m.output) === Number(output)) || null;
+  }
+
+  async function generateZip(){
+    const xml = generateXML();
+    const zip = new JSZip();
+    zip.file("device1.xml", xml);
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "device1.zip";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setStatus("device1.zip generated.");
+  }
+
+  document.getElementById("generateBtn").addEventListener("click", () => {
+    xmlOutputEl.value = generateXML();
+    setStatus("XML generated.");
+  });
+
+  document.getElementById("zipBtn").addEventListener("click", async () => {
+    try{ await generateZip(); } catch(e){ setStatus("ZIP generation failed.", true); }
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    try{
+      if(!xmlOutputEl.value.trim()) xmlOutputEl.value = generateXML();
+      await navigator.clipboard.writeText(xmlOutputEl.value);
+      setStatus("XML copied.");
+    }catch(e){
+      setStatus("Copy failed.", true);
+    }
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    slotData = [];
+    xmlOutputEl.value = "";
+    renderTree();
+    setStatus("Cleared.");
+  });
+
+  document.getElementById("importBtn").addEventListener("click", () => xmlFileEl.click());
+
+  xmlFileEl.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const text = await file.text();
+    try{
+      slotData = parseXMLToSlots(text);
+      normalizeOrder();
+      renderTree();
+      setStatus("XML imported.");
+    }catch(err){
+      setStatus(err.message, true);
+    }
+    xmlFileEl.value = "";
+  });
+
+  langSelectEl.addEventListener("change", () => {
+    lang = langSelectEl.value;
+    applyLanguage();
+  });
+
+  applyLanguage();
+  renderTree();
+  renderModuleList();
+</script>
+<footer style="padding:12px 16px;text-align:center;font-size:13px;color:#5f6b7a;border-top:1px solid #cbd5e1;background:#f7f9fb;">
+  Author: Zhao Mengkang | Date: 2026/08/05 | E-mail: zhaomengkang@hotmail.com
+</footer>
+</body>
+</html>
